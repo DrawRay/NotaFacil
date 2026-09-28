@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { PESOS, calcularPromedio, obtenerEstado, estaAprobado } from './logica/reglasAcademicas.js'
+import { validarEstudiante } from './logica/validacion.js'
 
 function App() {
   const [estudiantes, setEstudiantes] = useState([])
@@ -29,20 +31,9 @@ function App() {
   }
 
   const agregarEstudiante = () => {
-    if (codigo.trim() === '' || nombre.trim() === '') {
-      setError('Completa el código y el nombre del estudiante.')
-      return
-    }
-    if (nota1 === '' || nota2 === '' || nota3 === '') {
-      setError('Ingresa las tres notas.')
-      return
-    }
-    if (Number(nota1) < 0 || Number(nota1) > 20 || Number(nota2) < 0 || Number(nota2) > 20 || Number(nota3) < 0 || Number(nota3) > 20) {
-      setError('Las notas deben estar entre 0 y 20.')
-      return
-    }
-    if (estudiantes.find((e) => e.codigo === codigo.trim())) {
-      setError('Ya existe un estudiante con ese código.')
+    const mensaje = validarEstudiante({ codigo, nombre, nota1, nota2, nota3 }, estudiantes)
+    if (mensaje) {
+      setError(mensaje)
       return
     }
     const nuevo = {
@@ -60,20 +51,9 @@ function App() {
   }
 
   const guardarEdicion = () => {
-    if (codigo.trim() === '' || nombre.trim() === '') {
-      setError('Completa el código y el nombre del estudiante.')
-      return
-    }
-    if (nota1 === '' || nota2 === '' || nota3 === '') {
-      setError('Ingresa las tres notas.')
-      return
-    }
-    if (Number(nota1) < 0 || Number(nota1) > 20 || Number(nota2) < 0 || Number(nota2) > 20 || Number(nota3) < 0 || Number(nota3) > 20) {
-      setError('Las notas deben estar entre 0 y 20.')
-      return
-    }
-    if (estudiantes.find((e) => e.codigo === codigo.trim() && e.id !== editandoId)) {
-      setError('Ya existe un estudiante con ese código.')
+    const mensaje = validarEstudiante({ codigo, nombre, nota1, nota2, nota3 }, estudiantes, editandoId)
+    if (mensaje) {
+      setError(mensaje)
       return
     }
     const lista = estudiantes.map((e) =>
@@ -114,9 +94,9 @@ function App() {
   let desaprobados = 0
   let suma = 0
   for (let i = 0; i < estudiantes.length; i++) {
-    const p = estudiantes[i].nota1 * 0.3 + estudiantes[i].nota2 * 0.3 + estudiantes[i].nota3 * 0.4
+    const p = calcularPromedio(estudiantes[i])
     suma = suma + p
-    if (p >= 10.5) {
+    if (estaAprobado(p)) {
       aprobados++
     } else {
       desaprobados++
@@ -128,7 +108,7 @@ function App() {
     <div className="app">
       <header className="cabecera">
         <h1>NotaFácil</h1>
-        <p>Registro de notas del curso. El promedio se calcula así: T1 30%, parcial 30% y final 40%.</p>
+        <p>Registro de notas del curso. El promedio se calcula así: T1 {PESOS.t1 * 100}%, parcial {PESOS.parcial * 100}% y final {PESOS.final * 100}%.</p>
       </header>
 
       <section className="resumen">
@@ -219,19 +199,8 @@ function App() {
                 </thead>
                 <tbody>
                   {filtrados.map((e) => {
-                    const promedio = e.nota1 * 0.3 + e.nota2 * 0.3 + e.nota3 * 0.4
-                    let estado = ''
-                    let clase = ''
-                    if (promedio >= 17) {
-                      estado = 'Destacado'
-                      clase = 'destacado'
-                    } else if (promedio >= 10.5) {
-                      estado = 'Aprobado'
-                      clase = 'aprobado'
-                    } else {
-                      estado = 'Desaprobado'
-                      clase = 'desaprobado'
-                    }
+                    const promedio = calcularPromedio(e)
+                    const estado = obtenerEstado(promedio)
                     return (
                       <tr key={e.id}>
                         <td>{e.codigo}</td>
@@ -240,7 +209,7 @@ function App() {
                         <td>{e.nota2}</td>
                         <td>{e.nota3}</td>
                         <td className="promedio">{promedio.toFixed(2)}</td>
-                        <td><span className={'estado ' + clase}>{estado}</span></td>
+                        <td><span className={'estado ' + estado.clase}>{estado.nombre}</span></td>
                         <td className="botones">
                           <button className="enlace" onClick={() => editarEstudiante(e)}>Editar</button>
                           <button className="enlace peligro" onClick={() => eliminarEstudiante(e.id)}>Eliminar</button>
