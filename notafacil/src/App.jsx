@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { PESOS, calcularPromedio, obtenerEstado, estaAprobado } from './logica/reglasAcademicas.js'
 import { validarEstudiante } from './logica/validacion.js'
 
-function App() {
+function App({ repositorio }) {
   const [estudiantes, setEstudiantes] = useState([])
   const [codigo, setCodigo] = useState('')
   const [nombre, setNombre] = useState('')
@@ -14,11 +14,13 @@ function App() {
   const [editandoId, setEditandoId] = useState(null)
 
   useEffect(() => {
-    const datos = localStorage.getItem('notafacil_estudiantes')
-    if (datos) {
-      setEstudiantes(JSON.parse(datos))
-    }
-  }, [])
+    setEstudiantes(repositorio.obtenerTodos())
+  }, [repositorio])
+
+  const actualizarLista = (lista) => {
+    setEstudiantes(lista)
+    repositorio.guardarTodos(lista)
+  }
 
   const limpiarFormulario = () => {
     setCodigo('')
@@ -45,8 +47,7 @@ function App() {
       nota3: Number(nota3),
     }
     const lista = [...estudiantes, nuevo]
-    setEstudiantes(lista)
-    localStorage.setItem('notafacil_estudiantes', JSON.stringify(lista))
+    actualizarLista(lista)
     limpiarFormulario()
   }
 
@@ -61,8 +62,7 @@ function App() {
         ? { ...e, codigo: codigo.trim(), nombre: nombre.trim(), nota1: Number(nota1), nota2: Number(nota2), nota3: Number(nota3) }
         : e
     )
-    setEstudiantes(lista)
-    localStorage.setItem('notafacil_estudiantes', JSON.stringify(lista))
+    actualizarLista(lista)
     limpiarFormulario()
   }
 
@@ -79,8 +79,7 @@ function App() {
   const eliminarEstudiante = (id) => {
     if (!window.confirm('¿Eliminar este estudiante del registro?')) return
     const lista = estudiantes.filter((e) => e.id !== id)
-    setEstudiantes(lista)
-    localStorage.setItem('notafacil_estudiantes', JSON.stringify(lista))
+    actualizarLista(lista)
     if (editandoId === id) limpiarFormulario()
   }
 
