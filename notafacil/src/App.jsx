@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { PESOS, calcularPromedio, obtenerEstado, estaAprobado } from './logica/reglasAcademicas.js'
 import { validarEstudiante } from './logica/validacion.js'
 
-function App({ repositorio }) {
+function App({ repositorio, usuario, onCerrarSesion }) {
   const [estudiantes, setEstudiantes] = useState([])
   const [codigo, setCodigo] = useState('')
   const [nombre, setNombre] = useState('')
@@ -106,6 +106,12 @@ function App({ repositorio }) {
   return (
     <div className="app">
       <header className="cabecera">
+        {usuario && (
+          <div className="sesion">
+            <span>Sesión: <strong>{usuario.nombre}</strong></span>
+            <button className="secundario" onClick={onCerrarSesion}>Cerrar sesión</button>
+          </div>
+        )}
         <h1>NotaFácil</h1>
         <p>Registro de notas del curso. El promedio se calcula así: T1 {PESOS.t1 * 100}%, parcial {PESOS.parcial * 100}% y final {PESOS.final * 100}%.</p>
       </header>
