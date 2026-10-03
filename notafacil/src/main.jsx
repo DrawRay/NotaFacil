@@ -1,15 +1,17 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
+import ControlAcceso from './ControlAcceso.jsx'
 import { crearRepositorioLocalStorage } from './datos/repositorioLocalStorage.js'
+import { crearServicioAutenticacion } from './autenticacion/servicioAutenticacion.js'
+import { USUARIOS } from './autenticacion/usuarios.js'
 import './index.css'
 
-// Aquí se decide qué repositorio usa la aplicación (inversión de control).
-// Para cambiar de almacenamiento solo se modifica esta línea, no App.jsx.
+// Aquí se deciden las dependencias de la aplicación (inversión de control).
 const repositorio = crearRepositorioLocalStorage()
+const autenticacion = crearServicioAutenticacion(USUARIOS)
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App repositorio={repositorio} />
+    <ControlAcceso autenticacion={autenticacion} repositorio={repositorio} />
   </React.StrictMode>
 )
