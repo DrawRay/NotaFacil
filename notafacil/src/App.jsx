@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { PESOS, calcularPromedio, obtenerEstado, estaAprobado } from './logica/reglasAcademicas.js'
-import { validarEstudiante } from './logica/validacion.js'
+import { validarEstudiante, normalizarCodigo, esEntradaDeNotaValida } from './logica/validacion.js'
 
 function App({ repositorio, usuario, onCerrarSesion }) {
   const [estudiantes, setEstudiantes] = useState([])
@@ -40,7 +40,7 @@ function App({ repositorio, usuario, onCerrarSesion }) {
     }
     const nuevo = {
       id: Date.now(),
-      codigo: codigo.trim(),
+      codigo: normalizarCodigo(codigo),
       nombre: nombre.trim(),
       nota1: Number(nota1),
       nota2: Number(nota2),
@@ -59,11 +59,18 @@ function App({ repositorio, usuario, onCerrarSesion }) {
     }
     const lista = estudiantes.map((e) =>
       e.id === editandoId
-        ? { ...e, codigo: codigo.trim(), nombre: nombre.trim(), nota1: Number(nota1), nota2: Number(nota2), nota3: Number(nota3) }
+        ? { ...e, codigo: normalizarCodigo(codigo), nombre: nombre.trim(), nota1: Number(nota1), nota2: Number(nota2), nota3: Number(nota3) }
         : e
     )
     actualizarLista(lista)
     limpiarFormulario()
+  }
+
+  // Solo acepta lo que el usuario escribe si sigue siendo una nota válida (0 a 20).
+  const cambiarNota = (setNota) => (evento) => {
+    if (esEntradaDeNotaValida(evento.target.value)) {
+      setNota(evento.target.value)
+    }
   }
 
   const editarEstudiante = (e) => {
@@ -140,7 +147,7 @@ function App({ repositorio, usuario, onCerrarSesion }) {
           <h2>{editandoId ? 'Editar estudiante' : 'Registrar estudiante'}</h2>
           <label>
             Código
-            <input value={codigo} onChange={(e) => setCodigo(e.target.value)} placeholder="N00123456" />
+            <input value={codigo} onChange={(e) => setCodigo(e.target.value)} placeholder="N00123456" maxLength={9} />
           </label>
           <label>
             Nombre completo
@@ -149,15 +156,15 @@ function App({ repositorio, usuario, onCerrarSesion }) {
           <div className="notas">
             <label>
               T1
-              <input type="number" min="0" max="20" value={nota1} onChange={(e) => setNota1(e.target.value)} />
+              <input type="number" min="0" max="20" value={nota1} onChange={cambiarNota(setNota1)} />
             </label>
             <label>
               Parcial
-              <input type="number" min="0" max="20" value={nota2} onChange={(e) => setNota2(e.target.value)} />
+              <input type="number" min="0" max="20" value={nota2} onChange={cambiarNota(setNota2)} />
             </label>
             <label>
               Final
-              <input type="number" min="0" max="20" value={nota3} onChange={(e) => setNota3(e.target.value)} />
+              <input type="number" min="0" max="20" value={nota3} onChange={cambiarNota(setNota3)} />
             </label>
           </div>
           {error && <p className="error">{error}</p>}
