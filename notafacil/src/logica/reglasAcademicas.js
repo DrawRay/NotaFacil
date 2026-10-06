@@ -20,8 +20,17 @@ export const RANGOS_ESTADO = [
   { minimo: NOTA_MINIMA, nombre: 'Desaprobado', clase: 'desaprobado' },
 ]
 
+// El promedio se redondea al entero más cercano (desde ,5 sube): 15.65 → 16, 15.49 → 15, 10.5 → 11.
+// El estado se decide con este mismo valor entero, que es el que se muestra en pantalla.
+export function redondearNota(valor) {
+  // toFixed(6) quita el error de los decimales en la computadora
+  // (por ejemplo, 2.4999999999999996 en lugar de 2.5) antes de redondear.
+  return Math.round(Number(valor.toFixed(6)))
+}
+
 export function calcularPromedio(estudiante) {
-  return estudiante.nota1 * PESOS.t1 + estudiante.nota2 * PESOS.parcial + estudiante.nota3 * PESOS.final
+  const promedio = estudiante.nota1 * PESOS.t1 + estudiante.nota2 * PESOS.parcial + estudiante.nota3 * PESOS.final
+  return redondearNota(promedio)
 }
 
 export function obtenerEstado(promedio) {
