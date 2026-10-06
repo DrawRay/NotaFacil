@@ -57,10 +57,22 @@ describe('CR-05: formato del código UPN', () => {
 })
 
 describe('CR-05: entrada de notas en el formulario', () => {
-  it('CP19: acepta valores de 0 a 20 y el campo vacío', () => {
-    for (const valor of ['', '0', '10.5', '20']) expect(esEntradaDeNotaValida(valor)).toBe(true)
+  it('CP19: acepta enteros de 0 a 20 y el campo vacío', () => {
+    for (const valor of ['', '0', '15', '17', '20']) expect(esEntradaDeNotaValida(valor)).toBe(true)
   })
   it('CP19: bloquea valores mayores a 20 o negativos', () => {
     for (const valor of ['21', '52', '5222', '-1']) expect(esEntradaDeNotaValida(valor)).toBe(false)
+  })
+})
+
+describe('CR-03: notas solo enteras', () => {
+  it('CP24: no deja escribir decimales, punto ni coma', () => {
+    for (const valor of ['10.5', '15.', '1,5', '17.0', 'abc', ' ']) expect(esEntradaDeNotaValida(valor)).toBe(false)
+  })
+  it('CP25: rechaza registrar una nota con decimales', () => {
+    expect(validarEstudiante(datos({ nota2: '15.5' }), registrados)).toBe('Las notas deben ser números enteros, sin decimales.')
+  })
+  it('CP25: acepta notas enteras como 15 y 17', () => {
+    expect(validarEstudiante(datos({ nota1: '15', nota2: '17', nota3: '20' }), registrados)).toBeNull()
   })
 })

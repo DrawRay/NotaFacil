@@ -8,12 +8,14 @@ export function normalizarCodigo(codigo) {
   return codigo.trim().toUpperCase()
 }
 
-// Indica si lo que el usuario escribe en un campo de nota es aceptable
-// (vacío mientras escribe, o un número entre 0 y 20).
+// Las notas son números enteros, sin decimales (por ejemplo 15 o 17).
+export const FORMATO_NOTA = /^\d{1,2}$/
+
+// Indica si lo que el usuario escribe en un campo de nota es aceptable:
+// vacío mientras escribe, o un número entero de 0 a 20 (no deja escribir punto ni coma).
 export function esEntradaDeNotaValida(valor) {
   if (valor === '') return true
-  const numero = Number(valor)
-  return !Number.isNaN(numero) && numero >= NOTA_MINIMA && numero <= NOTA_MAXIMA
+  return FORMATO_NOTA.test(valor) && Number(valor) >= NOTA_MINIMA && Number(valor) <= NOTA_MAXIMA
 }
 
 // Valida los datos del formulario. Se usa tanto al registrar como al editar.
@@ -37,6 +39,9 @@ export function validarEstudiante(datos, estudiantes, idEnEdicion = null) {
   }
   if (notas.some((nota) => Number(nota) < NOTA_MINIMA || Number(nota) > NOTA_MAXIMA)) {
     return `Las notas deben estar entre ${NOTA_MINIMA} y ${NOTA_MAXIMA}.`
+  }
+  if (notas.some((nota) => !FORMATO_NOTA.test(String(nota).trim()))) {
+    return 'Las notas deben ser números enteros, sin decimales.'
   }
   if (estudiantes.some((e) => normalizarCodigo(e.codigo) === codigo && e.id !== idEnEdicion)) {
     return 'Ya existe un estudiante con ese código.'

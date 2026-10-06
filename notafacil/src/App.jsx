@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { PESOS, calcularPromedio, obtenerEstado, estaAprobado } from './logica/reglasAcademicas.js'
+import { PESOS, calcularPromedio, obtenerEstado, estaAprobado, redondearNota } from './logica/reglasAcademicas.js'
 import { validarEstudiante, normalizarCodigo, esEntradaDeNotaValida } from './logica/validacion.js'
 
 function App({ repositorio, usuario, onCerrarSesion }) {
@@ -66,7 +66,7 @@ function App({ repositorio, usuario, onCerrarSesion }) {
     limpiarFormulario()
   }
 
-  // Solo acepta lo que el usuario escribe si sigue siendo una nota válida (0 a 20).
+  // Solo acepta lo que el usuario escribe si sigue siendo una nota válida (entero de 0 a 20).
   const cambiarNota = (setNota) => (evento) => {
     if (esEntradaDeNotaValida(evento.target.value)) {
       setNota(evento.target.value)
@@ -108,7 +108,7 @@ function App({ repositorio, usuario, onCerrarSesion }) {
       desaprobados++
     }
   }
-  const promedioGeneral = estudiantes.length > 0 ? (suma / estudiantes.length).toFixed(2) : '—'
+  const promedioGeneral = estudiantes.length > 0 ? redondearNota(suma / estudiantes.length) : '—'
 
   return (
     <div className="app">
@@ -120,7 +120,7 @@ function App({ repositorio, usuario, onCerrarSesion }) {
           </div>
         )}
         <h1>NotaFácil</h1>
-        <p>Registro de notas del curso. El promedio se calcula así: T1 {PESOS.t1 * 100}%, parcial {PESOS.parcial * 100}% y final {PESOS.final * 100}%.</p>
+        <p>Registro de notas del curso. El promedio se calcula así: T1 {PESOS.t1 * 100}%, parcial {PESOS.parcial * 100}% y final {PESOS.final * 100}%. Notas y promedios en números enteros.</p>
       </header>
 
       <section className="resumen">
@@ -156,15 +156,15 @@ function App({ repositorio, usuario, onCerrarSesion }) {
           <div className="notas">
             <label>
               T1
-              <input type="number" min="0" max="20" value={nota1} onChange={cambiarNota(setNota1)} />
+              <input type="text" inputMode="numeric" size={2} maxLength={2} placeholder="0 a 20" value={nota1} onChange={cambiarNota(setNota1)} />
             </label>
             <label>
               Parcial
-              <input type="number" min="0" max="20" value={nota2} onChange={cambiarNota(setNota2)} />
+              <input type="text" inputMode="numeric" size={2} maxLength={2} placeholder="0 a 20" value={nota2} onChange={cambiarNota(setNota2)} />
             </label>
             <label>
               Final
-              <input type="number" min="0" max="20" value={nota3} onChange={cambiarNota(setNota3)} />
+              <input type="text" inputMode="numeric" size={2} maxLength={2} placeholder="0 a 20" value={nota3} onChange={cambiarNota(setNota3)} />
             </label>
           </div>
           {error && <p className="error">{error}</p>}
@@ -220,7 +220,7 @@ function App({ repositorio, usuario, onCerrarSesion }) {
                         <td>{e.nota1}</td>
                         <td>{e.nota2}</td>
                         <td>{e.nota3}</td>
-                        <td className="promedio">{promedio.toFixed(2)}</td>
+                        <td className="promedio">{promedio}</td>
                         <td><span className={'estado ' + estado.clase}>{estado.nombre}</span></td>
                         <td className="botones">
                           <button className="enlace" onClick={() => editarEstudiante(e)}>Editar</button>
