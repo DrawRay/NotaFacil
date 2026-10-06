@@ -29,6 +29,7 @@ Usuario de prueba: `docente` · Contraseña: `NotaFacil2026`
 | v2.1.0 | CR-04: inicio de sesión del docente | MINOR |
 | v2.1.1 | Corrección: servicio de autenticación y estilos que faltaron en v2.1.0 | PATCH |
 | v2.1.2 | CR-05: validación del formato de código y del rango de notas | PATCH |
+| v2.2.0 | CR-03: notas y promedios en números enteros | MINOR |
 
 ## Equipo
 
